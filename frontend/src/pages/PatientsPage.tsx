@@ -3,11 +3,16 @@ import { Alert, Box, Button, Chip, CircularProgress, IconButton, Paper, Table, T
 import { useEffect, useState } from "react";
 import { type Patient } from "../type/patient";
 import { patientAPI } from "../api/patientAPI";
+import PatientForm from "../components/patients/PatientForm";
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Add state inside component (after existing useState hooks)
+  const [formOpen, setFormOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+
   const fetchPatients = async () => {
     try {
       setLoading(true);
@@ -48,7 +53,12 @@ export default function PatientsPage() {
     <Box>
       <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} mb={3}>
         <Typography variant="h4" fontWeight={'bold'} mb={3}>Patients</Typography>
-        <Button variant="contained" startIcon={<Add />}>
+        <Button variant="contained" startIcon={<Add />}
+          onClick={() => {
+            setSelectedPatient(null);
+            setFormOpen(true);
+          }}
+        >
           Add Patient
         </Button>
       </Box>
@@ -83,7 +93,11 @@ export default function PatientsPage() {
                     />
                   </TableCell>
                   <TableCell>
-                    <IconButton color="primary" size="small">
+                    <IconButton color="primary" size="small"
+                      onClick={() => {
+                        setSelectedPatient(patient);
+                        setFormOpen(true);
+                      }}>
                       <Edit />
                     </IconButton>
                     <IconButton color="error" size="small"
@@ -97,6 +111,12 @@ export default function PatientsPage() {
           </TableBody>
         </Table>
       </TableContainer>
+      <PatientForm
+        open={formOpen}
+        patient={selectedPatient}
+        onClose={() => setFormOpen(false)}
+        OnSuccess={fetchPatients}
+      />
     </Box>
   )
 }
